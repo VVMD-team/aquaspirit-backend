@@ -1,1 +1,1 @@
-export * as WebflowController from "./webflow";
+export * as BoatsController from "./boats";
