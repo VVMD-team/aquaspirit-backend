@@ -77,7 +77,7 @@ export default async function getBoatsData(req: Request, res: Response) {
 
     const [colorsTransformed, optionsTransformed] = await Promise.all([
       transformItemsWithFilterItems(colors, ENV.WEBFLOW_CMS_COLORS_ID),
-      transformItemsWithFilterItems(options, ENV.WEBFLOW_CMS_OPTIONS_ID),
+      transformItemsWithFilterItems(options, ENV.WEBFLOW_CMS_COLORS_ID),
     ]);
 
     const enrichedBoats = boatsData.items.map((boat: WebflowItem) => {
