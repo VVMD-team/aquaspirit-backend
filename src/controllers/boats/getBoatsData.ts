@@ -37,6 +37,31 @@ const mapItemsToRecord = (items: WebflowItem[]) =>
     {}
   );
 
+const transformItemsWithFilterItems = async (
+  items: Record<string, Record<string, any>>,
+  filterCollectionId: string
+): Promise<typeof items> => {
+  const response = await getWebflowCollectionItems(filterCollectionId);
+  const filterMap = mapItemsToRecord(response.items); // { [id]: fieldData }
+
+  const updatedColors: typeof items = {};
+
+  for (const [key, item] of Object.entries(items)) {
+    if (Array.isArray(item["filter-colors"])) {
+      updatedColors[key] = {
+        ...item,
+        "filter-colors": item["filter-colors"]
+          .map((id: string) => filterMap[id])
+          .filter(Boolean),
+      };
+    } else {
+      updatedColors[key] = item;
+    }
+  }
+
+  return updatedColors;
+};
+
 // filter-colors
 
 export default async function getBoatsData(req: Request, res: Response) {
@@ -50,7 +75,10 @@ export default async function getBoatsData(req: Request, res: Response) {
     const colors = mapItemsToRecord(colorsData.items);
     const options = mapItemsToRecord(optionsData.items);
 
-    console.log({ colors, options });
+    const [colorsTransformed, optionsTransformed] = await Promise.all([
+      transformItemsWithFilterItems(colors, ENV.WEBFLOW_CMS_COLORS_ID),
+      transformItemsWithFilterItems(options, ENV.WEBFLOW_CMS_OPTIONS_ID),
+    ]);
 
     const enrichedBoats = boatsData.items.map((boat: WebflowItem) => {
       const enrichedFieldData = { ...boat.fieldData };
@@ -60,12 +88,12 @@ export default async function getBoatsData(req: Request, res: Response) {
 
         if (colorOptionKeysSet.has(key) && Array.isArray(value)) {
           enrichedFieldData[key] = value.map(
-            (colorId: string) => colors[colorId]
+            (colorId: string) => colorsTransformed[colorId]
           );
         }
         if (key === "options" && Array.isArray(value)) {
           enrichedFieldData[key] = value.map(
-            (optionId: string) => options[optionId]
+            (optionId: string) => optionsTransformed[optionId]
           );
         }
       }
