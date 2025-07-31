@@ -10,8 +10,14 @@ const headers = {
   "Content-Type": "application/json",
 };
 
-const getWebflowCollectionItems = async (collectionId: string) => {
-  const url = `https://api.webflow.com/v2/collections/${collectionId}/items`;
+const getWebflowCollectionItems = async (
+  collectionId: string,
+  itemId?: string
+) => {
+  const url = `https://api.webflow.com/v2/collections/${collectionId}/items${
+    itemId ? `/${itemId}` : ""
+  }`;
+
   const res = await fetch(url, { headers });
 
   if (!res.ok) {
@@ -66,8 +72,14 @@ const transformItemsWithFilterItems = async (
 
 export default async function getBoatsData(req: Request, res: Response) {
   try {
+    const { id: boatId } = req.params;
+
+    if (!boatId) {
+      return res.status(400).send({ message: "Boat ID is required!" });
+    }
+
     const [boatsData, colorsData, optionsData] = await Promise.all([
-      getWebflowCollectionItems(ENV.WEBFLOW_CMS_BOATS_ID),
+      getWebflowCollectionItems(ENV.WEBFLOW_CMS_BOATS_ID, boatId),
       getWebflowCollectionItems(ENV.WEBFLOW_CMS_COLORS_ID),
       getWebflowCollectionItems(ENV.WEBFLOW_CMS_OPTIONS_ID),
     ]);
