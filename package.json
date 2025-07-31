@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
-    "build": "tsc",
-    "start": "node -r tsconfig-paths/register dist/index.js",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/index.js",
     "gen:env:example": "ts-node scripts/generate-env-example.ts"
   },
   "keywords": [],
@@ -27,6 +27,7 @@
     "@types/node": "^24.1.0",
     "@types/nodemailer": "^6.4.17",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }
