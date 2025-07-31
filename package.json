@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node -r tsconfig-paths/register dist/index.js",
     "gen:env:example": "ts-node scripts/generate-env-example.ts"
   },
   "keywords": [],
