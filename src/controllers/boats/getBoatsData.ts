@@ -78,7 +78,7 @@ export default async function getBoatsData(req: Request, res: Response) {
       return res.status(400).send({ message: "Boat ID is required!" });
     }
 
-    const [boatsData, colorsData, optionsData] = await Promise.all([
+    const [boatData, colorsData, optionsData] = await Promise.all([
       getWebflowCollectionItems(ENV.WEBFLOW_CMS_BOATS_ID, boatId),
       getWebflowCollectionItems(ENV.WEBFLOW_CMS_COLORS_ID),
       getWebflowCollectionItems(ENV.WEBFLOW_CMS_OPTIONS_ID),
@@ -92,28 +92,26 @@ export default async function getBoatsData(req: Request, res: Response) {
       transformItemsWithFilterItems(options, ENV.WEBFLOW_CMS_COLORS_ID),
     ]);
 
-    const enrichedBoats = boatsData.items.map((boat: WebflowItem) => {
-      const enrichedFieldData = { ...boat.fieldData };
+    const enrichedFieldData = { ...boatData.fieldData };
 
-      for (const key of Object.keys(enrichedFieldData)) {
-        const value = enrichedFieldData[key];
+    for (const key of Object.keys(enrichedFieldData)) {
+      const value = enrichedFieldData[key];
 
-        if (colorOptionKeysSet.has(key) && Array.isArray(value)) {
-          enrichedFieldData[key] = value.map(
-            (colorId: string) => colorsTransformed[colorId]
-          );
-        }
-        if (key === "options" && Array.isArray(value)) {
-          enrichedFieldData[key] = value.map(
-            (optionId: string) => optionsTransformed[optionId]
-          );
-        }
+      if (colorOptionKeysSet.has(key) && Array.isArray(value)) {
+        enrichedFieldData[key] = value.map(
+          (colorId: string) => colorsTransformed[colorId]
+        );
       }
+      if (key === "options" && Array.isArray(value)) {
+        enrichedFieldData[key] = value.map(
+          (optionId: string) => optionsTransformed[optionId]
+        );
+      }
+    }
 
-      return { id: boat.id, ...enrichedFieldData };
-    });
+    const enrichedBoat = { id: boatData.id, ...enrichedFieldData };
 
-    res.status(200).json(enrichedBoats);
+    res.status(200).json(enrichedBoat);
   } catch (error) {
     console.error(error);
     res.status(500).json({
