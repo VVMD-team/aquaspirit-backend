@@ -3,18 +3,17 @@ import cors from "cors";
 
 import { ENV } from "./env";
 
-import webflowRoutes from "@/routes/boats.routes";
+import webflowRoutes from "./routes/boats.routes";
 
 const app = express();
 
-// temporary
-app.use(cors());
-
-//  cors({
-//     origin: "https://verge3d-boat-ui.webflow.io",
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     credentials: true,
-//   })
+app.use(
+  cors({
+    origin: "https://verge3d-boat-ui.webflow.io",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
