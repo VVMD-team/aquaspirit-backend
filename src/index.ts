@@ -11,6 +11,8 @@ const allowedOrigins = [
   "https://verge3d-boat-ui.webflow.io",
   "https://grand-3d-test.vercel.app",
   "https://constructor.grandboats.com",
+  "http://localhost:8669",
+  "https://localhost:8669"
 ];
 
 app.use(
