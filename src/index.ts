@@ -7,9 +7,23 @@ import webflowRoutes from "./routes/boats.routes";
 
 const app = express();
 
+const allowedOrigins = [
+  "https://verge3d-boat-ui.webflow.io",
+  "https://grand-3d-test.vercel.app",
+  "https://constructor.grandboats.com",
+  "http://localhost:8669",
+  "https://localhost:8669"
+];
+
 app.use(
   cors({
-    origin: "https://verge3d-boat-ui.webflow.io",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
