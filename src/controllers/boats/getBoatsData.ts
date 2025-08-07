@@ -21,8 +21,9 @@ const getWebflowCollectionItems = async (
   const res = await fetch(url, { headers });
 
   if (!res.ok) {
+    const errorText = await res.text();
     throw new Error(
-      `Failed to fetch collection ${collectionId}: ${res.statusText}`
+      `Failed to fetch collection ${collectionId}: ${res.status} ${res.statusText} — ${errorText}`
     );
   }
 
@@ -43,53 +44,91 @@ const mapItemsToRecord = (items: WebflowItem[]) =>
     {}
   );
 
-const transformItemsWithFilterItems = async (
+const getMappedWebflowItems = async (collectionId: string) => {
+  const response = await getWebflowCollectionItems(collectionId);
+  return mapItemsToRecord(response.items);
+};
+
+const transformItemsWithReferenceFields = async (
   items: Record<string, Record<string, any>>,
-  filterCollectionId: string
+  referenceFieldsMap: Record<string, string>,
+  preloadedCollections: Record<string, Record<string, any>> = {}
 ): Promise<typeof items> => {
-  const response = await getWebflowCollectionItems(filterCollectionId);
-  const filterMap = mapItemsToRecord(response.items); // { [id]: fieldData }
+  const requiredCollectionIds = Array.from(
+    new Set(Object.values(referenceFieldsMap))
+  );
 
-  const updatedColors: typeof items = {};
+  const collectionMaps: Record<string, Record<string, any>> = {
+    ...preloadedCollections,
+  };
 
-  for (const [key, item] of Object.entries(items)) {
-    if (Array.isArray(item["filter-colors"])) {
-      updatedColors[key] = {
-        ...item,
-        "filter-colors": item["filter-colors"]
-          .map((id: string) => filterMap[id])
-          .filter(Boolean),
-      };
-    } else {
-      updatedColors[key] = item;
+  for (const collectionId of requiredCollectionIds) {
+    if (!collectionMaps[collectionId]) {
+      collectionMaps[collectionId] = await getMappedWebflowItems(collectionId);
     }
   }
 
-  return updatedColors;
-};
+  const updatedItems: typeof items = {};
 
-// filter-colors
+  for (const [itemId, item] of Object.entries(items)) {
+    const newItem = { ...item };
+
+    for (const [fieldName, collectionId] of Object.entries(
+      referenceFieldsMap
+    )) {
+      const sourceMap = collectionMaps[collectionId];
+      const fieldValue = item[fieldName];
+
+      if (Array.isArray(fieldValue)) {
+        newItem[fieldName] = fieldValue
+          .map((refId: string) => {
+            const resolved = sourceMap?.[refId];
+            if (!resolved) {
+              console.warn(
+                `[WARN] Item "${itemId}": missing reference "${refId}" in field "${fieldName}" (collection: ${collectionId})`
+              );
+            }
+            return resolved;
+          })
+          .filter(Boolean);
+      }
+    }
+
+    updatedItems[itemId] = newItem;
+  }
+
+  return updatedItems;
+};
 
 export default async function getBoatsData(req: Request, res: Response) {
   try {
     const { id: boatId } = req.params;
 
     if (!boatId) {
-      return res.status(400).send({ message: "Boat ID is required!" });
+      return res.status(400).json({ message: "Boat ID is required!" });
     }
 
-    const [boatData, colorsData, optionsData] = await Promise.all([
+    const [boatData, colorsMap, optionsMap] = await Promise.all([
       getWebflowCollectionItems(ENV.WEBFLOW_CMS_BOATS_ID, boatId),
-      getWebflowCollectionItems(ENV.WEBFLOW_CMS_COLORS_ID),
-      getWebflowCollectionItems(ENV.WEBFLOW_CMS_OPTIONS_ID),
+      getMappedWebflowItems(ENV.WEBFLOW_CMS_COLORS_ID),
+      getMappedWebflowItems(ENV.WEBFLOW_CMS_OPTIONS_ID),
     ]);
 
-    const colors = mapItemsToRecord(colorsData.items);
-    const options = mapItemsToRecord(optionsData.items);
+    const referenceFieldsMap = {
+      "filter-colors": ENV.WEBFLOW_CMS_COLORS_ID,
+      "mutual-exclusion-option": ENV.WEBFLOW_CMS_OPTIONS_ID,
+      "activator-option": ENV.WEBFLOW_CMS_OPTIONS_ID,
+    };
 
     const [colorsTransformed, optionsTransformed] = await Promise.all([
-      transformItemsWithFilterItems(colors, ENV.WEBFLOW_CMS_COLORS_ID),
-      transformItemsWithFilterItems(options, ENV.WEBFLOW_CMS_COLORS_ID),
+      transformItemsWithReferenceFields(colorsMap, referenceFieldsMap, {
+        [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
+        [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+      }),
+      transformItemsWithReferenceFields(optionsMap, referenceFieldsMap, {
+        [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
+        [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+      }),
     ]);
 
     const enrichedFieldData = { ...boatData.fieldData };
@@ -102,6 +141,7 @@ export default async function getBoatsData(req: Request, res: Response) {
           (colorId: string) => colorsTransformed[colorId]
         );
       }
+
       if (key === "options" && Array.isArray(value)) {
         enrichedFieldData[key] = value.map(
           (optionId: string) => optionsTransformed[optionId]
@@ -113,7 +153,7 @@ export default async function getBoatsData(req: Request, res: Response) {
 
     res.status(200).json(enrichedBoat);
   } catch (error) {
-    console.error(error);
+    console.error("[ERROR]", error);
     res.status(500).json({
       error: "An error occurred while fetching the CMS items",
     });
