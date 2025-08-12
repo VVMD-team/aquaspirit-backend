@@ -1,8 +1,6 @@
 import { google } from "googleapis";
-import { Request, Response } from "express";
 import { ENV } from "@/env";
-
-import { BoatBase } from "@/custom-types/Boat";
+import { Boat } from "@/custom-types/Boat";
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(ENV.GOOGLE_SERVICE_ACCOUNT_KEY),
@@ -11,27 +9,31 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: "v4", auth });
 
-export const appendToSheet = async ({
-  name,
-  country,
-  email,
-  phone,
-  city,
-  comment,
-  screen,
-  link,
-}: BoatBase) => {
+export const appendToSheet = async (data: Boat) => {
   const spreadsheetId = ENV.GOOGLE_SHEET_ID;
   const range = "Sheet1!A1";
 
-  const values = [[name, country, email, phone, city, comment, screen, link]];
+  const resGet = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range,
+  });
 
-  const { ok } = await sheets.spreadsheets.values.append({
+  const isEmpty = !resGet.data.values || resGet.data.values.length === 0;
+
+  const rows = [];
+
+  if (isEmpty) {
+    rows.push(Object.keys(data));
+  }
+
+  rows.push(Object.values(data));
+
+  const resAppend = await sheets.spreadsheets.values.append({
     spreadsheetId,
     range,
     valueInputOption: "USER_ENTERED",
-    requestBody: { values },
+    requestBody: { values: rows },
   });
 
-  return ok;
+  return resAppend.status === 200;
 };

@@ -86,7 +86,7 @@ export const sendEmails = async ({
   const mailOptionsClient = {
     ...mailOptionsBasic,
     // to: clientEmails[country] || defaultClientEmail,
-    to: "michael.sychenko@gmail.com",
+    to: "vvmd.internal.team@gmail.com",
   };
   console.log({ mailOptionsUser, mailOptionsClient });
   const [respEmailUser, respEmailClient] = await Promise.all([

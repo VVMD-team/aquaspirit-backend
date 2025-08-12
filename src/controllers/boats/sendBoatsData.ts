@@ -35,7 +35,8 @@ export default async function sendBoatsData(req: Request, res: Response) {
 
     const dynamicKeys = Object.keys(rest).filter(
       (key) =>
-        /^tab-\d+-color-\d+$/.test(key) || /^option-\d+-(text|code)$/.test(key)
+        /^tab-\d+-color-\d+-(name|value)$/.test(key) || // tab-X-color-Y-name/value
+        /^option-\d+-(text|code)$/.test(key) // option-X-text/code
     );
 
     const dynamicFields: BoatDynamicFields = Object.fromEntries(
@@ -58,18 +59,8 @@ export default async function sendBoatsData(req: Request, res: Response) {
       ...dynamicFields,
     };
 
-    res.status(200).json({
-      success: false,
-      successSheet: false,
-      sucessUserEmail: false,
-      sucessClientEmail: false,
-      data,
-    });
-
-    return;
-
     const [{ sucessUserEmail, sucessClientEmail }, successSheet] =
-      await Promise.all([sendEmails(data), appendToSheet(dataBase)]);
+      await Promise.all([sendEmails(data), appendToSheet(data)]);
 
     const success = sucessUserEmail && sucessClientEmail && successSheet;
 
