@@ -58,19 +58,27 @@ export default async function sendBoatsData(req: Request, res: Response) {
       ...dynamicFields,
     };
 
-    const [successSheet] = await Promise.all([appendToSheet(dataBase)]);
-    // const [{ sucessUserEmail, sucessClientEmail }, successSheet] =
-    //   await Promise.all([sendEmails(data), appendToSheet(dataBase)]);
+    res.status(200).json({
+      success: false,
+      successSheet: false,
+      sucessUserEmail: false,
+      sucessClientEmail: false,
+      data,
+    });
 
-    // const success = sucessUserEmail && sucessClientEmail && successSheet;
+    return;
 
-    res.status(200).json({ success: successSheet, successSheet });
-    // res.status(success ? 200 : 500).json({
-    // success,
-    // successSheet,
-    // sucessUserEmail,
-    // sucessClientEmail,
-    // });
+    const [{ sucessUserEmail, sucessClientEmail }, successSheet] =
+      await Promise.all([sendEmails(data), appendToSheet(dataBase)]);
+
+    const success = sucessUserEmail && sucessClientEmail && successSheet;
+
+    res.status(success ? 200 : 500).json({
+      success,
+      successSheet,
+      sucessUserEmail,
+      sucessClientEmail,
+    });
   } catch (error) {
     res.status(500).json({
       error: `Error sending data: ${error}`,

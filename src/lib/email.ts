@@ -22,31 +22,34 @@ export const sendEmails = async ({
   ...dynamicFields
 }: Params) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: ENV.EMAIL_SMTP_HOST as string,
+    port: +ENV.EMAIL_SMTP_SSL_PORT as number,
+    secure: true,
     auth: {
-      user: ENV.EMAIL_SENDER_ADDRESS,
-      pass: ENV.EMAIL_SENDER_APP_PASS,
+      type: "login",
+      user: ENV.EMAIL_SMTP_USERNAME,
+      pass: ENV.EMAIL_SMTP_PASSWORD,
     },
   });
 
-  const base64String = screen;
+  // const base64String = screen;
 
-  const matches = base64String.match(/^data:(.+);base64,(.+)$/);
+  // const matches = base64String.match(/^data:(.+);base64,(.+)$/);
 
-  let buffer: Buffer;
-  if (matches) {
-    buffer = Buffer.from(matches[2], "base64");
-  } else {
-    buffer = Buffer.from(base64String, "base64");
-  }
+  // let buffer: Buffer;
+  // if (matches) {
+  //   buffer = Buffer.from(matches[2], "base64");
+  // } else {
+  //   buffer = Buffer.from(base64String, "base64");
+  // }
 
-  const extension = getExtensionFromBase64(base64String);
+  // const extension = getExtensionFromBase64(base64String);
 
-  if (!extension) {
-    throw new Error("Can't get file extension from base64 string");
-  }
+  // if (!extension) {
+  //   throw new Error("Can't get file extension from base64 string");
+  // }
 
-  const emailFrom = `"Aquaspirit" <${ENV.EMAIL_SENDER_ADDRESS}>`;
+  const emailFrom = `"Aquaspirit" <${ENV.EMAIL_SMTP_USERNAME}>`;
   const emailSubject = `Order: ${name} `;
 
   const emailTemplate = `
@@ -57,23 +60,22 @@ export const sendEmails = async ({
         City: ${city}
         Comment: ${comment}
         Link: ${link}
-    
-        ${JSON.stringify(dynamicFields)}
-        `;
 
-  const emailAttachments = [
-    {
-      filename: `Boat.${extension}`,
-      content: buffer,
-    },
-  ];
+        ${JSON.stringify(dynamicFields)}`;
+
+  // const emailAttachments = [
+  //   {
+  //     filename: `Boat.${extension}`,
+  //     content: buffer,
+  //   },
+  // ];
 
   const mailOptionsBasic = {
     from: emailFrom,
 
     subject: emailSubject,
     text: emailTemplate,
-    attachments: emailAttachments,
+    // attachments: emailAttachments,
   };
 
   const mailOptionsUser = {
@@ -83,9 +85,10 @@ export const sendEmails = async ({
 
   const mailOptionsClient = {
     ...mailOptionsBasic,
-    to: clientEmails[country] || defaultClientEmail,
+    // to: clientEmails[country] || defaultClientEmail,
+    to: "michael.sychenko@gmail.com",
   };
-
+  console.log({ mailOptionsUser, mailOptionsClient });
   const [respEmailUser, respEmailClient] = await Promise.all([
     transporter.sendMail(mailOptionsUser),
     transporter.sendMail(mailOptionsClient),
