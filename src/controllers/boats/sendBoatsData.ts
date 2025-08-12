@@ -29,7 +29,7 @@ export default async function sendBoatsData(req: Request, res: Response) {
       res.status(400).send({ error: "Invalid Country" });
     }
 
-    if (!name || !email || !phone || !city || !comment || !screen || !link) {
+    if (!name || !email || !phone || !screen || !link) {
       res.status(400).send({ error: "Missing required fields" });
     }
 
