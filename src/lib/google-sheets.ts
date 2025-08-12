@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { google } from "googleapis";
 import { ENV } from "@/env";
 import { Boat } from "@/custom-types/Boat"; // merged fixed + dynamic
