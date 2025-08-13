@@ -33,14 +33,15 @@ export default async function sendBoatsData(req: Request, res: Response) {
       res.status(400).send({ error: "Missing required fields" });
     }
 
-    const dynamicKeys = Object.keys(rest).filter(
-      (key) =>
-        /^tab-\d+-color-\d+-(name|value)$/.test(key) || // tab-X-color-Y-name/value
-        /^option-\d+-(text|code)$/.test(key) // option-X-text/code
-    );
+    const dynamicKeys = Object.keys(rest).filter((key) => {
+      const v = rest[key];
+      if (v === undefined || v === null || String(v).trim() === "")
+        return false;
+      return /^tab-\d+-color-\d+$/.test(key) || /^option-\d+$/.test(key);
+    });
 
     const dynamicFields: BoatDynamicFields = Object.fromEntries(
-      dynamicKeys.map((key) => [key, rest[key]])
+      dynamicKeys.map((key) => [key, String(rest[key]).trim()])
     );
 
     const dataBase: BoatBase = {

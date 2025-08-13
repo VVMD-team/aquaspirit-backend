@@ -49,19 +49,38 @@ export const sendEmails = async ({
   //   throw new Error("Can't get file extension from base64 string");
   // }
 
+  const selectedValues = Object.entries(dynamicFields)
+    .filter(([, v]) => typeof v === "string" && v.trim() !== "")
+    .sort(([a], [b]) => {
+      const tabRe = /^tab-(\d+)-color-(\d+)$/;
+      const optRe = /^option-(\d+)$/;
+      const aTab = tabRe.exec(a);
+      const bTab = tabRe.exec(b);
+      if (aTab && bTab) return +aTab[1] - +bTab[1] || +aTab[2] - +bTab[2];
+      if (aTab && !bTab) return -1;
+      if (!aTab && bTab) return 1;
+      const aOpt = optRe.exec(a);
+      const bOpt = optRe.exec(b);
+      if (aOpt && bOpt) return +aOpt[1] - +bOpt[1];
+      return a.localeCompare(b);
+    })
+    .map(([, v]) => `- ${v!.trim()}`)
+    .join("\n");
+
   const emailFrom = `"Aquaspirit" <${ENV.EMAIL_SMTP_USERNAME}>`;
   const emailSubject = `Order: ${name} `;
 
   const emailTemplate = `
-        Name: ${name}
-        Country: ${country}
-        Email: ${email}
-        Phone: ${phone}
-        City: ${city}
-        Comment: ${comment}
-        Link: ${link}
+Name: ${name}
+Country: ${country}
+Email: ${email}
+Phone: ${phone}
+City: ${city}
+Comment: ${comment}
+Link: ${link}
 
-        ${JSON.stringify(dynamicFields)}`;
+Selected:
+${selectedValues || "(none)"}`;
 
   // const emailAttachments = [
   //   {
