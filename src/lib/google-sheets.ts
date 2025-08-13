@@ -13,6 +13,16 @@ export const appendToSheet = async (data: Boat) => {
   const spreadsheetId = ENV.GOOGLE_SHEET_ID;
   const range = "Sheet1!A1";
 
+  const date = new Date();
+  const readableDate = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long", // "August" instead of "08"
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(date);
+
   const fixedKeys: (keyof Boat)[] = [
     "name",
     "country",
@@ -48,7 +58,7 @@ export const appendToSheet = async (data: Boat) => {
   const combinedDynamicCell =
     dynamicEntries.map(([, v]) => String(v).trim()).join("\n") || "";
 
-  const row = [...fixedPart, combinedDynamicCell];
+  const row = [readableDate, ...fixedPart, combinedDynamicCell];
 
   const resGet = await sheets.spreadsheets.values.get({ spreadsheetId, range });
   const isEmpty = !resGet.data.values || resGet.data.values.length === 0;
