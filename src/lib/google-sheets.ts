@@ -14,13 +14,14 @@ export const appendToSheet = async (data: Boat) => {
   const range = "Sheet1!A1";
 
   const date = new Date();
-  const readableDate = new Intl.DateTimeFormat("en-US", {
+  const readableDate = new Intl.DateTimeFormat("uk-UA", {
     year: "numeric",
-    month: "long", // "August" instead of "08"
+    month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+    timeZone: "Europe/Kyiv",
   }).format(date);
 
   const fixedKeys: (keyof Boat)[] = [
