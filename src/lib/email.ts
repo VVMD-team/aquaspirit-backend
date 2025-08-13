@@ -107,7 +107,7 @@ ${selectedValues || "(none)"}`;
     // to: clientEmails[country] || defaultClientEmail,
     to: "vvmd.internal.team@gmail.com",
   };
-  console.log({ mailOptionsUser, mailOptionsClient });
+
   const [respEmailUser, respEmailClient] = await Promise.all([
     transporter.sendMail(mailOptionsUser),
     transporter.sendMail(mailOptionsClient),
