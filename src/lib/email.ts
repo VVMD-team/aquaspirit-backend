@@ -76,7 +76,7 @@ Country: ${country}
 Email: ${email}
 Phone: ${phone}
 City: ${city}
-Comment: ${comment}
+${comment ? `Comment: ${comment}` : ""}
 Link: ${link}
 
 Selected:
