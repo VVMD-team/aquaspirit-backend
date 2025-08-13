@@ -48,7 +48,7 @@ export default async function sendBoatsData(req: Request, res: Response) {
       name,
       country,
       email,
-      phone,
+      phone: phone.replace(/[^\d]/g, ""),
       city,
       comment,
       screen,
