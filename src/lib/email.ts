@@ -105,7 +105,7 @@ ${selectedValues || "(none)"}`;
   const mailOptionsClient = {
     ...mailOptionsBasic,
     // to: clientEmails[country] || defaultClientEmail,
-    to: "vvmd.internal.team@gmail.com",
+    to: "maksymenko.design@gmail.com",
   };
 
   const [respEmailUser, respEmailClient] = await Promise.all([
