@@ -67,7 +67,7 @@ export const sendEmails = async ({
     .map(([, v]) => `- ${v!.trim()}`)
     .join("\n");
 
-  const emailFrom = `"Aquaspirit" <${ENV.EMAIL_SMTP_USERNAME}>`;
+  const emailFrom = `"Grand" <${ENV.EMAIL_SMTP_USERNAME}>`;
   const emailSubject = `Order: ${name} `;
 
   const emailTemplate = `
