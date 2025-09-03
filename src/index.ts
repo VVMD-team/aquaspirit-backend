@@ -8,13 +8,13 @@ import webflowRoutes from "./routes/boats.routes";
 const app = express();
 
 const allowedOrigins = [
+  "http://localhost:8669/",
+  "https://localhost:8669/",
   "https://verge3d-boat-ui.webflow.io",
   "https://grand-3d-test.vercel.app",
   "https://constructor.grandboats.com",
   "https://aquaspirit-backend-production.up.railway.app",
   "https://s3.us-east-1.amazonaws.com",
-  "http://localhost:8669/",
-  "https://localhost:8669/",
   "http://localhost:5500",
   "https://localhost:5500",
 ];
