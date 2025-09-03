@@ -14,6 +14,7 @@ const allowedOrigins = [
   "https://aquaspirit-backend-production.up.railway.app",
   "http://localhost:8669",
   "https://localhost:8669",
+  "https://s3.us-east-1.amazonaws.com/assets.vvmd.team/Grand3d/test/index3.html?id=685569e2da50c670bb2fc01d",
 ];
 
 app.use(
