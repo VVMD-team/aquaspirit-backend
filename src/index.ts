@@ -13,6 +13,8 @@ const allowedOrigins = [
   "https://constructor.grandboats.com",
   "https://aquaspirit-backend-production.up.railway.app",
   "https://s3.us-east-1.amazonaws.com",
+  "http://localhost:8669/",
+  "https://localhost:8669/",
 ];
 
 app.use(
