@@ -17,6 +17,7 @@ const allowedOrigins = [
   "https://s3.us-east-1.amazonaws.com",
   "http://localhost:5500",
   "https://localhost:5500",
+  "https://cdn.soft8soft.com",
 ];
 
 app.use(
