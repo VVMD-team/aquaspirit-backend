@@ -19,7 +19,7 @@ export const clientEmails = {
   [COUNTRIES.FRANCE]: "contact@tonimarine.fr",
   [COUNTRIES.GERMANY]: "post@ms-marine.de",
   [COUNTRIES.GREECE]: "info@grandboats.gr",
-  [COUNTRIES.HUNGARY]: "a.molnar@ribstore.net",
+  [COUNTRIES.HUNGARY]: "hello@ribstore.net",
   [COUNTRIES.IRELAND]: "info@crawfordsmarina.com",
   [COUNTRIES.ITALY]: "info@emeraldboats.com",
   [COUNTRIES.KOSOVO]: "info@moto-nautika.com",
