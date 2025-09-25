@@ -120,6 +120,7 @@ export default async function getBoatsData(req: Request, res: Response) {
       "activator-option": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "related-options": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "related": ENV.WEBFLOW_CMS_OPTIONS_ID,
+      "second-code-activator": ENV.WEBFLOW_CMS_OPTIONS_ID,
     };
 
     const [colorsTransformed, optionsTransformed] = await Promise.all([
