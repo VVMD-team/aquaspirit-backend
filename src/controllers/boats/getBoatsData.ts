@@ -167,7 +167,7 @@ export default async function getBoatsData(req: Request, res: Response) {
   } catch (error) {
     console.error("[ERROR]", error);
     res.status(500).json({
-      error: "An error occurred while fetching the CMS items",
+      error: "An error occurred while fetching the CMS items ",
     });
   }
 }
