@@ -119,6 +119,7 @@ export default async function getBoatsData(req: Request, res: Response) {
       "mutual-exclusion-option": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "activator-option": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "related-options": ENV.WEBFLOW_CMS_OPTIONS_ID,
+      "related": ENV.WEBFLOW_CMS_OPTIONS_ID,
     };
 
     const [colorsTransformed, optionsTransformed] = await Promise.all([
@@ -163,7 +164,7 @@ export default async function getBoatsData(req: Request, res: Response) {
   } catch (error) {
     console.error("[ERROR]", error);
     res.status(500).json({
-      error: "An error occurred while fetching the CMS items ",
+      error: "An error occurred while fetching the CMS items",
     });
   }
 }
