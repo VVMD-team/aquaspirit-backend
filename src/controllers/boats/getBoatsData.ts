@@ -157,24 +157,32 @@ export default async function getBoatsData(req: Request, res: Response) {
         );
       }
 
-      if (
-        key === "initial-colors-and-options" &&
-        Array.isArray(value)
-      ) {
+      if (key === "initial-colors-and-options" && Array.isArray(value)) {
         enrichedFieldData[key] = value
-          .map((id: string) => initialOptionsTransformed[id])
-          .filter(Boolean);
-      }
+          .map((item: any) => {
+            const transformedItem =
+              initialOptionsTransformed[item.id] || item;
 
-      if (key === "initial-colors" && Array.isArray(value)) {
-        enrichedFieldData[key] = value
-          .map((colorId: string) => colorsTransformed[colorId])
-          .filter(Boolean);
-      }
+            if (
+              transformedItem["initial-options"] &&
+              Array.isArray(transformedItem["initial-options"])
+            ) {
+              transformedItem["initial-options"] = transformedItem["initial-options"]
+                .map((optionId: string) => optionsTransformed[optionId])
+                .filter(Boolean);
+            }
 
-      if (key === "initial-options" && Array.isArray(value)) {
-        enrichedFieldData[key] = value
-          .map((optionId: string) => optionsTransformed[optionId])
+            if (
+              transformedItem["initial-colors"] &&
+              Array.isArray(transformedItem["initial-colors"])
+            ) {
+              transformedItem["initial-colors"] = transformedItem["initial-colors"]
+                .map((colorId: string) => colorsTransformed[colorId])
+                .filter(Boolean);
+            }
+
+            return transformedItem;
+          })
           .filter(Boolean);
       }
     }
