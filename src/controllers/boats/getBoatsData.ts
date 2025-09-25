@@ -151,13 +151,6 @@ export default async function getBoatsData(req: Request, res: Response) {
       }
     }
 
-    for (const color of Object.values(colorsTransformed)) {
-      if (color["related-option"]) {
-        const relatedOptionId = color["related-option"];
-        color["related-option"] = optionsTransformed[relatedOptionId] || null;
-      }
-    }
-
     const enrichedBoat = { id: boatData.id, ...enrichedFieldData };
 
     res.status(200).json(enrichedBoat);
