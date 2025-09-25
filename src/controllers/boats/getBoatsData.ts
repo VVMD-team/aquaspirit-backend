@@ -165,6 +165,18 @@ export default async function getBoatsData(req: Request, res: Response) {
           .map((id: string) => initialOptionsTransformed[id])
           .filter(Boolean);
       }
+
+      if (key === "initial-colors" && Array.isArray(value)) {
+        enrichedFieldData[key] = value
+          .map((colorId: string) => colorsTransformed[colorId])
+          .filter(Boolean);
+      }
+
+      if (key === "initial-options" && Array.isArray(value)) {
+        enrichedFieldData[key] = value
+          .map((optionId: string) => optionsTransformed[optionId])
+          .filter(Boolean);
+      }
     }
 
     const enrichedBoat = { id: boatData.id, ...enrichedFieldData };
