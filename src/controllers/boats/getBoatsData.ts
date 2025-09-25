@@ -14,9 +14,8 @@ const getWebflowCollectionItems = async (
   collectionId: string,
   itemId?: string
 ) => {
-  const url = `https://api.webflow.com/v2/collections/${collectionId}/items${
-    itemId ? `/${itemId}` : ""
-  }`;
+  const url = `https://api.webflow.com/v2/collections/${collectionId}/items${itemId ? `/${itemId}` : ""
+    }`;
 
   const res = await fetch(url, { headers });
 
@@ -108,10 +107,11 @@ export default async function getBoatsData(req: Request, res: Response) {
       return res.status(400).json({ message: "Boat ID is required!" });
     }
 
-    const [boatData, colorsMap, optionsMap] = await Promise.all([
+    const [boatData, colorsMap, optionsMap, initialOptionsMap] = await Promise.all([
       getWebflowCollectionItems(ENV.WEBFLOW_CMS_BOATS_ID, boatId),
       getMappedWebflowItems(ENV.WEBFLOW_CMS_COLORS_ID),
       getMappedWebflowItems(ENV.WEBFLOW_CMS_OPTIONS_ID),
+      getMappedWebflowItems(ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID),
     ]);
 
     const referenceFieldsMap = {
@@ -121,9 +121,10 @@ export default async function getBoatsData(req: Request, res: Response) {
       "related-options": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "related": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "second-code-activator": ENV.WEBFLOW_CMS_OPTIONS_ID,
+      "initial-colors-and-options": ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID,
     };
 
-    const [colorsTransformed, optionsTransformed] = await Promise.all([
+    const [colorsTransformed, optionsTransformed, initialOptionsTransformed] = await Promise.all([
       transformItemsWithReferenceFields(colorsMap, referenceFieldsMap, {
         [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
         [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
@@ -131,6 +132,11 @@ export default async function getBoatsData(req: Request, res: Response) {
       transformItemsWithReferenceFields(optionsMap, referenceFieldsMap, {
         [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
         [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+      }),
+      transformItemsWithReferenceFields(initialOptionsMap, referenceFieldsMap, {
+        [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
+        [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+        [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
       }),
     ]);
 
@@ -149,6 +155,15 @@ export default async function getBoatsData(req: Request, res: Response) {
         enrichedFieldData[key] = value.map(
           (optionId: string) => optionsTransformed[optionId]
         );
+      }
+
+      if (
+        key === "initial-colors-and-options" &&
+        Array.isArray(value)
+      ) {
+        enrichedFieldData[key] = value
+          .map((id: string) => initialOptionsTransformed[id])
+          .filter(Boolean);
       }
     }
 
