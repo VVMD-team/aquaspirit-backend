@@ -122,6 +122,8 @@ export default async function getBoatsData(req: Request, res: Response) {
       "related": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "second-code-activator": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "initial-colors-and-options": ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID,
+      "initial-options": ENV.WEBFLOW_CMS_OPTIONS_ID,
+      "initial-colors": ENV.WEBFLOW_CMS_COLORS_ID
     };
 
     const [colorsTransformed, optionsTransformed, initialOptionsTransformed] = await Promise.all([
@@ -159,30 +161,7 @@ export default async function getBoatsData(req: Request, res: Response) {
 
       if (key === "initial-colors-and-options" && Array.isArray(value)) {
         enrichedFieldData[key] = value
-          .map((item: any) => {
-            const transformedItem =
-              initialOptionsTransformed[item.id] || item;
-
-            if (
-              transformedItem["initial-options"] &&
-              Array.isArray(transformedItem["initial-options"])
-            ) {
-              transformedItem["initial-options"] = transformedItem["initial-options"]
-                .map((optionId: string) => optionsTransformed[optionId])
-                .filter(Boolean);
-            }
-
-            if (
-              transformedItem["initial-colors"] &&
-              Array.isArray(transformedItem["initial-colors"])
-            ) {
-              transformedItem["initial-colors"] = transformedItem["initial-colors"]
-                .map((colorId: string) => colorsTransformed[colorId])
-                .filter(Boolean);
-            }
-
-            return transformedItem;
-          })
+          .map((item: any) => initialOptionsTransformed[item.id] || item)
           .filter(Boolean);
       }
     }
