@@ -122,20 +122,30 @@ export default async function getBoatsData(req: Request, res: Response) {
       "related": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "second-code-activator": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "initial-colors-and-options": ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID,
-      "initial-options": ENV.WEBFLOW_CMS_OPTIONS_ID,
-      "initial-colors": ENV.WEBFLOW_CMS_COLORS_ID
     };
 
-    const [colorsTransformed, optionsTransformed, initialOptionsTransformed] = await Promise.all([
+    const [colorsTransformed, optionsTransformed, initialOptionsTransformed, initialColorsTransformed, initialOptionsListTransformed] = await Promise.all([
       transformItemsWithReferenceFields(colorsMap, referenceFieldsMap, {
         [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
         [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+        [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
       }),
       transformItemsWithReferenceFields(optionsMap, referenceFieldsMap, {
         [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
         [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+        [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
       }),
       transformItemsWithReferenceFields(initialOptionsMap, referenceFieldsMap, {
+        [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
+        [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+        [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
+      }),
+      transformItemsWithReferenceFields(colorsMap, referenceFieldsMap, { // для initial-colors
+        [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
+        [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
+        [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
+      }),
+      transformItemsWithReferenceFields(optionsMap, referenceFieldsMap, { // для initial-options
         [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
         [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
         [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
@@ -161,8 +171,21 @@ export default async function getBoatsData(req: Request, res: Response) {
 
       if (key === "initial-colors-and-options" && Array.isArray(value)) {
         enrichedFieldData[key] = value
-          .map((item: any) => initialOptionsTransformed[item.id] || item)
-          .filter(Boolean);
+          .map((id: string) => initialOptionsTransformed[id])
+          .filter(Boolean)
+          .map((item: any) => {
+            if (Array.isArray(item['initial-options'])) {
+              item['initial-options'] = item['initial-options']
+                .map((optionId: string) => optionsTransformed[optionId])
+                .filter(Boolean);
+            }
+            if (Array.isArray(item['initial-colors'])) {
+              item['initial-colors'] = item['initial-colors']
+                .map((colorId: string) => colorsTransformed[colorId])
+                .filter(Boolean);
+            }
+            return item;
+          });
       }
     }
 
