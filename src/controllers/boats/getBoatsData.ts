@@ -124,7 +124,7 @@ export default async function getBoatsData(req: Request, res: Response) {
       "initial-colors-and-options": ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID,
     };
 
-    const [colorsTransformed, optionsTransformed, initialOptionsTransformed, initialColorsTransformed, initialOptionsListTransformed] = await Promise.all([
+    const [colorsTransformed, optionsTransformed, initialOptionsTransformed] = await Promise.all([
       transformItemsWithReferenceFields(colorsMap, referenceFieldsMap, {
         [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
         [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
@@ -139,17 +139,7 @@ export default async function getBoatsData(req: Request, res: Response) {
         [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
         [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
         [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
-      }),
-      transformItemsWithReferenceFields(colorsMap, referenceFieldsMap, { // для initial-colors
-        [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
-        [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
-        [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
-      }),
-      transformItemsWithReferenceFields(optionsMap, referenceFieldsMap, { // для initial-options
-        [ENV.WEBFLOW_CMS_COLORS_ID]: colorsMap,
-        [ENV.WEBFLOW_CMS_OPTIONS_ID]: optionsMap,
-        [ENV.WEBFLOW_CMS_INITIAL_OPTIONS_ID]: initialOptionsMap,
-      }),
+      })
     ]);
 
     const enrichedFieldData = { ...boatData.fieldData };
