@@ -116,6 +116,7 @@ export default async function getBoatsData(req: Request, res: Response) {
 
     const referenceFieldsMap = {
       "deactivate-colors": ENV.WEBFLOW_CMS_COLORS_ID,
+      "filter-colors": ENV.WEBFLOW_CMS_COLORS_ID,
       "mutual-exclusion-option": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "activator-option": ENV.WEBFLOW_CMS_OPTIONS_ID,
       "related-options": ENV.WEBFLOW_CMS_OPTIONS_ID,
